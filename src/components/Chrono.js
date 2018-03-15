@@ -1,25 +1,39 @@
 import React from 'react'
+import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
 import Display from './Display'
 import List from './List'
 import { formatTimer } from '../utils'
 import { TIMER_INTERVAL, TIMER_STATES } from '../constants'
 
-export default class Chrono extends React.Component {
+export const chrono = (
+  state = { status: TIMER_STATES.STOP, timer: 0, laps: [] },
+  action
+) => {
+  switch (action.type) {
+    case 'SET_TIMER':
+      return Object.assign({}, state, { timer: action.payload })
+    case 'RESET_TIMER':
+      return Object.assign({}, state, { timer: 0 })
+    case 'SET_STATUS':
+      return Object.assign({}, state, { status: action.payload })
+    case 'ADD_LAP':
+      return Object.assign({}, state, { laps: [...state.laps, action.payload] })
+    case 'DELETE_LAP':
+      const newLaps = state.laps.filter(
+        (lap, index) => index !== action.payload
+      )
+      return Object.assign({}, state, { laps: newLaps })
+    case 'RESET_LAPS':
+      return Object.assign({}, state, { laps: [] })
+    default:
+      return state
+  }
+}
+
+class Chrono extends React.Component {
   constructor(props) {
     super(props)
-
-    this.state = {
-      timer: 0,
-      status: TIMER_STATES.STOP,
-      laps: []
-    }
-    this.setTimer = this.setTimer.bind(this)
-    this.setStatusStart = this.setStatusStart.bind(this)
-    this.setStatusPause = this.setStatusPause.bind(this)
-    this.setStatusStop = this.setStatusStop.bind(this)
-    this.resetTimer = this.resetTimer.bind(this)
-    this.startInterval = this.startInterval.bind(this)
-    this.stopInterval = this.stopInterval.bind(this)
     this.handleStart = this.handleStart.bind(this)
     this.handlePause = this.handlePause.bind(this)
     this.handleStop = this.handleStop.bind(this)
@@ -29,24 +43,24 @@ export default class Chrono extends React.Component {
   }
 
   setTimer() {
-    const timer = this.state.timer + TIMER_INTERVAL
-    this.setState({ timer })
-  }
-
-  setStatusStart() {
-    this.setState({ status: TIMER_STATES.START })
-  }
-
-  setStatusPause() {
-    this.setState({ status: TIMER_STATES.PAUSE })
-  }
-
-  setStatusStop() {
-    this.setState({ status: TIMER_STATES.STOP })
+    const newTimer = this.props.timer + TIMER_INTERVAL
+    this.props.dispatch({ type: 'SET_TIMER', payload: newTimer })
   }
 
   resetTimer() {
-    this.setState({ timer: 0 })
+    this.props.dispatch({ type: 'RESET_TIMER' })
+  }
+
+  setStatusStart() {
+    this.props.dispatch({ type: 'SET_STATUS', payload: TIMER_STATES.START })
+  }
+
+  setStatusPause() {
+    this.props.dispatch({ type: 'SET_STATUS', payload: TIMER_STATES.PAUSE })
+  }
+
+  setStatusStop() {
+    this.props.dispatch({ type: 'SET_STATUS', payload: TIMER_STATES.STOP })
   }
 
   startInterval() {
@@ -64,7 +78,7 @@ export default class Chrono extends React.Component {
   }
 
   handlePause() {
-    if (this.state.status === TIMER_STATES.START) {
+    if (this.props.status === TIMER_STATES.START) {
       this.stopInterval()
       this.setStatusPause()
     } else {
@@ -80,23 +94,20 @@ export default class Chrono extends React.Component {
   }
 
   handleLap() {
-    this.setState({ laps: this.state.laps.concat(this.state.timer) })
+    const lap = this.props.timer
+    this.props.dispatch({ type: 'ADD_LAP', payload: lap })
   }
 
   handleDeleteLap(lapIndex) {
-    this.setState({
-      laps: this.state.laps.filter((lap, index) => index !== lapIndex)
-    })
+    this.props.dispatch({ type: 'DELETE_LAP', payload: lapIndex })
   }
 
   handleResetLaps() {
-    this.setState({
-      laps: []
-    })
+    this.props.dispatch({ type: 'RESET_LAPS' })
   }
 
   render() {
-    const { timer, status, laps } = this.state
+    const { timer, status, laps } = this.props
     return (
       <div className="timer">
         <Display
@@ -116,3 +127,17 @@ export default class Chrono extends React.Component {
     )
   }
 }
+
+Chrono.propTypes = {
+  status: PropTypes.string.isRequired,
+  timer: PropTypes.number.isRequired,
+  laps: PropTypes.arrayOf(PropTypes.number).isRequired
+}
+
+const mapStateToProps = state => ({
+  status: state.chrono.status,
+  timer: state.chrono.timer,
+  laps: state.chrono.laps
+})
+
+export default connect(mapStateToProps)(Chrono)

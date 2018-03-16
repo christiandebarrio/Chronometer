@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --watch",
     "build": "./node_modules/.bin/webpack",
     "start": "./node_modules/.bin/webpack --watch",
     "server": "./node_modules/.bin/webpack-dev-server"
@@ -22,5 +22,17 @@
     "redux": "^3.7.2",
     "webpack": "^3.10.0",
     "webpack-dev-server": "^2.11.0"
+  },
+  "devDependencies": {
+    "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
+    "jest": "^22.4.2",
+    "jest-enzyme": "^6.0.0"
+  },
+  "jest": {
+    "setupTestFrameworkScriptFile": "./node_modules/jest-enzyme/lib/index.js",
+    "setupFiles": [
+      "./setupTests.js"
+    ]
   }
 }

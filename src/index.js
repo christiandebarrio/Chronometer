@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import { createStore, combineReducers } from 'redux'
 import { Provider } from 'react-redux'
 import App from 'app'
-import { chrono } from './components/Chrono'
+import chrono from './modules/chrono'
 
 const store = createStore(combineReducers({ chrono }))
 

@@ -1,0 +1,6 @@
+export const SET_TIMER = 'SET_TIMER'
+export const RESET_TIMER = 'RESET_TIMER'
+export const SET_STATUS = 'SET_STATUS'
+export const ADD_LAP = 'ADD_LAP'
+export const DELETE_LAP = 'DELETE_LAP'
+export const RESET_LAPS = 'RESET_LAPS'
